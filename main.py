@@ -1,6 +1,6 @@
-from asyncio import run
+from asyncio import run, sleep
 
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, OpenAI
 
 # NOTE: OpenTelemetry Python Logs and Events APIs are in beta
 from opentelemetry import _events, _logs, trace
@@ -26,7 +26,22 @@ _events.set_event_logger_provider(EventLoggerProvider())
 OpenAIInstrumentor().instrument()
 
 
-async def main():
+def main_sync():
+    client = OpenAI()
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "user",
+                "content": "Write a short poem on OpenTelemetry.",
+            },
+        ],
+    )
+    print(response.choices[0].message.content)
+
+
+# TODO: This code doesn't work for some reason, make it work.
+async def main_async():
     client = AsyncOpenAI()
     stream = await client.chat.completions.create(
         model="gpt-4o-mini",
@@ -37,14 +52,17 @@ async def main():
             },
         ],
         stream=True,
+        stream_options={"include_usage": True},
     )
     async for chunk in stream:
         choice = chunk.choices[0]
         if choice.delta.content is None:
             print()
-            return
+            break
         print(choice.delta.content, end="")
+    await sleep(1)
 
 
 if __name__ == "__main__":
-    run(main())
+    # main_sync()
+    run(main_async())
