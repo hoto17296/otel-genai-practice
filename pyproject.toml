@@ -1,0 +1,14 @@
+[tool.black]
+target-version = ["py313"]
+line-length = 120
+
+[project]
+name = "otel-genai-practice"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "openai>=1.66.3",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.31.0",
+    "opentelemetry-instrumentation-openai-v2>=2.1b0",
+    "opentelemetry-sdk>=1.31.0",
+]
